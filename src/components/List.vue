@@ -18,27 +18,75 @@ export default {
     }
 	},
   render: function($createElement){
-  	return $createElement(this.tag, {}, this.$scopedSlots.content(this))
+  	return $createElement(this.tag, {}, this.$scopedSlots[this.$options._componentTag](this))
   },
   computed: {
   	filtered: function(){
   		return	this.items.filter(item => {
-  			let able = false;
-		  	for(let attr in this.filters){
-		  		able = _.get(item, attr) == this.filters[attr].split('==')[1].split('\'').join('')
-		  	}
-  			return true;//able
-  		});
-  	}
+        let able = true
+        for(let attr in this.filters){
+          if(!attr.startsWith('!')){
+            able = this.filter(item, able, this.filters[attr], attr, 0);
+          }
+        }
+        return able
+      });
+    }
+  },
+  methods: {
+    filter(object, able, values, attr, current){
+      if(current == values.length){
+        return able
+      }
+      switch (values[current]){
+        case '&&':
+          return able && this.filter(object, able, values, attr, current +1)
+        break;
+        case '||':
+          return able || this.filter(object, able, values, attr, current +1)
+        break;
+        default:
+          return this.filter(object, this.filterItem(object, values[current], attr), values, attr, current +1)
+        break;
+      }
+    },
+    filterItem(object, operation, attr){
+      if(operation instanceof Array){
+        return this.filter(object, true, operation, attr, 0);
+      }
+      let filter = operation.split(' ')
+      switch (filter[0]){
+        case '===':
+          return _.get(object, attr) === filter[1]
+        break;
+        case '!==':
+          return _.get(object, attr) !== filter[1]
+        break;
+        case '==':
+          return _.get(object, attr) == filter[1]
+        break;
+        case '!=':
+          return _.get(object, attr) != filter[1]
+        break;
+        case '>=':
+          return _.get(object, attr) >= filter[1]
+        break;
+        case '<=':
+          return _.get(object, attr) >= filter[1]
+        break;
+        case '<':
+          return _.get(object, attr) < filter[1]
+        break;
+        case '>':
+          return _.get(object, attr) > filter[1]
+        break;
+        case 'includes':
+          return _.get(object, attr).includes(filter[1])
+        break;
+      }
+    }
   },
   mounted(){
-  	for(let attr in this.filters){
-  		let disable = this.filters[attr].startsWith('(') && this.filters[attr].endsWith(')')
-  		if(disable){
-  			let filter = this.filters[attr].substr(1).slice(0, -1).split(' ')
-  		}
-	  	console.log(filter, disable)
-  	}
   }
 }
 </script>
