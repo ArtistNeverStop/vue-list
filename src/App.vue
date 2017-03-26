@@ -3,7 +3,7 @@
 		<img src="./assets/logo.png">
 		<list tag="div" :prop-items="[{name:'padex', foo:{bar:'baz'}}, {name:'ana'}]"
 			:prop-filters="{
-					'name' : ['includes jancho', '||', ['includes a', '&&', 'includes p']],
+					'name' : ['includes jancho'],
 					'!foo.bar' : ['||', '== baz']
 				}">
 			<template slot="list" scope="parentList">

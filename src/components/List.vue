@@ -84,6 +84,9 @@ export default {
           return _.get(object, attr).includes(filter[1])
         break;
       }
+    },
+    setFilter(filterPath, value){
+      _.set(this.filters, filterPath, _.get(this.filters, filterPath).split(' ').splice(0, 1) + ' ' + value)
     }
   },
   mounted(){
