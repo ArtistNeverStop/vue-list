@@ -3,8 +3,8 @@
 		<img src="./assets/logo.png">
 		<list tag="div" :prop-items="[{name:'padex', foo:{bar:'baz'}}, {name:'ana'}]"
 			:prop-filters="{
-					'name' : ['includes jancho'],
-					'!foo.bar' : ['||', '== baz']
+					'name' : [{op:'includes', val:'jancho'}],
+					'!foo.bar' : ['||', {op:'==', val:'baz'}]
 				}">
 			<template slot="list" scope="parentList">
 			<list tag="section" :prop-items="[{name:'jancho'}, {name:'lala'}]">
@@ -21,7 +21,7 @@
 							<li v-for="(item, index) in parentList.filtered">
 								{{index}}<p>{{item.name}}</p><button @click="childList.items.push(parentList.items.splice(index, 1)[0])">pluck</button>
 							</li>
-							<input type="text" v-model="parentList.filters.name[0]">
+							<input type="text" v-model="parentList.filters.name[0].val">
 						</ul>
 					</div>
 					</template>

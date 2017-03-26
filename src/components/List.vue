@@ -54,42 +54,55 @@ export default {
       if(operation instanceof Array){
         return this.filter(object, true, operation, attr, 0);
       }
-      let filter = operation.split(' ')
-      switch (filter[0]){
+      switch (operation.op){
         case '===':
-          return _.get(object, attr) === filter[1]
+          return _.get(object, attr) === operation.val
         break;
         case '!==':
-          return _.get(object, attr) !== filter[1]
+          return _.get(object, attr) !== operation.val
         break;
         case '==':
-          return _.get(object, attr) == filter[1]
+          return _.get(object, attr) == operation.val
         break;
         case '!=':
-          return _.get(object, attr) != filter[1]
+          return _.get(object, attr) != operation.val
         break;
         case '>=':
-          return _.get(object, attr) >= filter[1]
+          return _.get(object, attr) >= operation.val
         break;
         case '<=':
-          return _.get(object, attr) >= filter[1]
+          return _.get(object, attr) >= operation.val
         break;
         case '<':
-          return _.get(object, attr) < filter[1]
+          return _.get(object, attr) < operation.val
         break;
         case '>':
-          return _.get(object, attr) > filter[1]
+          return _.get(object, attr) > operation.val
         break;
         case 'includes':
-          return _.get(object, attr).includes(filter[1])
+          return _.get(object, attr).includes(operation.val)
         break;
       }
     },
     setFilter(filterPath, value){
       _.set(this.filters, filterPath, _.get(this.filters, filterPath).split(' ').splice(0, 1) + ' ' + value)
-    }
+    },
+    // initializeFilters(){
+    //   for(let filterName in this.propFilters){
+    //     this.filters[filterName] = [];
+    //     for(let filter in this.propFilters[filterName]){
+    //       if(this.propFilters[filterName][filter].includes('||') || this.propFilters[filterName][filter].includes('&&')){
+    //         this.filters[filterName].push(this.propFilters[filterName][filter])
+    //       }else{
+    //         let operation = this.propFilters[filterName][filter].split(' ')
+    //         this.filters[filterName].push({ op : operation[0], val: operation[1]})
+    //       }
+    //     }
+    //   }
+    // }
   },
-  mounted(){
+  created(){
+    //this.initializeFilters()
   }
 }
 </script>
