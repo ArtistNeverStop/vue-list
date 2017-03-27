@@ -2,35 +2,35 @@
 export default {
   name: 'list',
   props: {
-  	tag: String,
-  	propItems: Array,
-  	propFilters: {
-  		type: Object,
-  		default: function(){
-  			return {}
-  		}
-  	}
+    tag: String,
+    list: Array,
+    initialFilters: {
+      type: Object,
+      default: function(){
+        return {}
+      }
+    }
   },
   data () {
     return {
-    	items: this.propItems,
-    	filters: this.propFilters
+      items: this.list,
+      filters: this.initialFilters
     }
-	},
+  },
   render: function($createElement){
-  	return $createElement(this.tag, {}, this.$scopedSlots[this.$options._componentTag](this))
+    return $createElement(this.tag, {}, this.$scopedSlots[this.$options._componentTag](this))
   },
   computed: {
-  	filtered: function(){
-  		return	this.items.filter(item => {
+    filtered: function(){
+      return  this.items.filter(item => {
         let able = true
         for(let attr in this.filters){
           if(!attr.startsWith('!')){
-            able = this.filter(item, able, this.filters[attr], attr, 0);
+            able = this.filter(item, able, this.filters[attr], attr, 0)
           }
         }
         return able
-      });
+      })
     }
   },
   methods: {
@@ -52,7 +52,7 @@ export default {
     },
     filterItem(object, operation, attr){
       if(operation instanceof Array){
-        return this.filter(object, true, operation, attr, 0);
+        return this.filter(object, true, operation, attr, 0)
       }
       switch (operation.op){
         case '===':
@@ -84,30 +84,58 @@ export default {
         break;
       }
     },
-    setFilter(filterPath, value){
-      _.set(this.filters, filterPath, _.get(this.filters, filterPath).split(' ').splice(0, 1) + ' ' + value)
+    enableFilter(filter){
+      if(!_.get(this.filters, '!'+filter))
+        return
+      this.filters[filter] = Object.assign([], this.filters['!' + filter])
+      this.items.push({})
+      this.items.pop()
+      delete this.filters['!' + filter]
     },
-    // initializeFilters(){
-    //   for(let filterName in this.propFilters){
-    //     this.filters[filterName] = [];
-    //     for(let filter in this.propFilters[filterName]){
-    //       if(this.propFilters[filterName][filter].includes('||') || this.propFilters[filterName][filter].includes('&&')){
-    //         this.filters[filterName].push(this.propFilters[filterName][filter])
-    //       }else{
-    //         let operation = this.propFilters[filterName][filter].split(' ')
-    //         this.filters[filterName].push({ op : operation[0], val: operation[1]})
-    //       }
-    //     }
-    //   }
-    // }
+    disableFilter(filter){
+      if(_.get(this.filters, filter))
+        return
+      this.filters['!' + filter] = Object.assign([], this.filters[filter])
+      this.items.push({})
+      this.items.pop()
+      delete this.filters[filter]
+    },
+    filterBy(filters, only, $event){
+      this.enableFilters(filters.map(filter => filter.filter), only)
+      if($event){
+        this.setFilter(filters, $event)
+      }
+    },
+    enableFilters(filters, only){
+      if(only){
+        this.disableFilters([], true)
+      }
+      for(let index in filters){
+        this.enableFilter(filters[index])
+      }
+    },
+    disableFilters(filters, all){
+      if(all){
+        for(let filterName in this.filters){
+          this.disableFilter(filterName)
+        }
+      }else{
+        for(let index in filters){
+          this.disableFilter(filters[index])
+        }
+      }
+    },
+    isEnabled(filter){
+      return _.get(this.filters, filter) ? '!' : '';
+    },
+    setFilter(filters, $event){
+      filters.forEach( item => {
+        _.set(this.filters[item.filter], item.field, $event.target.value)
+      })
+    }
   },
   created(){
     //this.initializeFilters()
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-
-</style>

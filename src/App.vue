@@ -1,13 +1,13 @@
 <template>
 	<div id="app">
 		<img src="./assets/logo.png">
-		<list tag="div" :prop-items="[{name:'padex', foo:{bar:'baz'}}, {name:'ana'}]"
-			:prop-filters="{
-					'name' : [{op:'includes', val:'jancho'}],
-					'!foo.bar' : ['||', {op:'==', val:'baz'}]
-				}">
+		<list tag="section" :list="[{name:'padex', foo:{bar:'baz'}}, {name:'ana'}]"
+			:initial-filters="{
+				'!name' : [{op:'includes', val:'jancho'}],
+				'!foo.bar' : ['||', {op:'==', val:'baz'}]
+			}">
 			<template slot="list" scope="parentList">
-			<list tag="section" :prop-items="[{name:'jancho'}, {name:'lala'}]">
+			<list tag="section" :list="[{name:'jancho'}, {name:'lala'}]">
 				<template slot="list" scope="childList">
 					<div class="flex">
 						<ul>
@@ -21,7 +21,8 @@
 							<li v-for="(item, index) in parentList.filtered">
 								{{index}}<p>{{item.name}}</p><button @click="childList.items.push(parentList.items.splice(index, 1)[0])">pluck</button>
 							</li>
-							<input type="text" v-model="parentList.filters.name[0].val">
+							<input @input="parentList.filterBy([{filter:'name', field:'[0].val'}, {filter:'foo.bar', field:'[1].val'}], true, $event)" type="text">
+							<button>Able foo.bar</button>
 						</ul>
 					</div>
 					</template>
