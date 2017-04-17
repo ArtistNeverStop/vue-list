@@ -14,7 +14,7 @@ export default {
   data () {
     return {
       items: this.list,
-      filters: this.initialFilters
+      filters: this.initializeFilters(this.initialFilters)
     }
   },
   render: function($createElement){
@@ -24,28 +24,30 @@ export default {
     filtered: function(){
       return  this.items.filter(item => {
         let able = true
-        for(let attr in this.filters){
-          able = this.filter(item, able, this.filters)
-        }
+        able = this.filter(item, able, this.filters)
         return able
       })
     }
   },
   methods: {
     filter(object, able, filter){
-      if(filter[0] instanceof Array){
-        able = this.filter(object, able, filter[0])
-      } 
-      switch (filter[1]){
-        case '&&':
-          return able && this.filter(object, able, filter[2])
-        break;
-        case '||':
-          return able || this.filter(object, able, filter[2])
-        break;
-        default:
-          return this.filterItem(object, filter)
-        break;
+      if(!filter.disabled){
+        if(filter[0] instanceof Array){
+          able = this.filter(object, able, filter[0])
+        } 
+        switch (filter[1]){
+          case '&&':
+            return able && this.filter(object, able, filter[2])
+          break;
+          case '||':
+            return able || this.filter(object, able, filter[2])
+          break;
+          default:
+            return this.filterItem(object, filter)
+          break;
+        }
+      } else{
+        return true
       }
     },
     filterItem(object, operation){
@@ -127,10 +129,53 @@ export default {
       filters.forEach( item => {
         _.set(this.filters[item.filter], item.field, $event.target.value)
       })
+    },
+    initializeFilters(filter){
+      if(filter instanceof Array){
+        Object.defineProperty(filter, 'disabled', {
+          writable: true,
+          enumerable: true,
+          configurable: true,
+          value: false,
+        })
+        Object.defineProperty(filter, 'disable', {
+          writable: true,
+          enumerable: true,
+          configurable: true,
+          value: function(){ 
+              filter.disabled = false 
+            }
+        })
+        Object.defineProperty(filter, 'able', {
+          writable: true,
+          enumerable: true,
+          configurable: true,
+          value: function(){ 
+              filter.disabled = true
+            }
+        })
+        Object.defineProperty(filter, 'toggle', {
+          writable: true,
+          enumerable: true,
+          configurable: true,
+          value: function(){ 
+              filter.disabled = !filter.disabled
+              filter.push([])
+              filter.pop()
+            }
+        })
+      }
+      if(filter[0] instanceof Array){
+        this.initializeFilters(filter[0])
+      }
+      if(filter[2] instanceof Array){
+        this.initializeFilters(filter[2])
+      }
+      return filter
     }
   },
-  created(){
-    //this.initializeFilters()
+  mounted(){
+    
   }
 }
 </script>

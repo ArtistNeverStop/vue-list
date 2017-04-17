@@ -1,8 +1,8 @@
 <template>
 	<div id="app">
 		<img src="./assets/logo.png">
-		<list tag="section" :list="[{name:'padex', age: 18}, {name:'ana', age: 17}, {name:'diego', age: 17}]"
-			:initial-filters="[[['name', 'includes', 'ana'], '||', ['name', 'includes', 'diego']], '||', ['age', '>=', 18]]">
+		<list tag="section" :list="[{name:'padex', age: 15}, {name:'ana', age: 15}, {name:'diego', age: 15}]"
+			:initial-filters="[[['name', 'includes', 'ana'], '||', ['name', 'includes', 'diego']], '&&', ['age', '>=', 18]]">
 			<template slot="list" scope="parentList">
 			<list tag="section" :list="[{name: 'jancho', age: 19}, {name: 'lala', age:60}]">
 				<template slot="list" scope="childList">
@@ -19,7 +19,7 @@
 								{{index}}<p>{{item.name}}</p><button @click="childList.items.push(parentList.items.splice(index, 1)[0])">pluck</button>
 							</li>
 							<input v-model="parentList.filters[0][0][2]" type="text">
-							<button>Able foo.bar</button>
+							<button @click="parentList.filters[2].toggle">toggle Diego</button>
 						</ul>
 					</div>
 					</template>
