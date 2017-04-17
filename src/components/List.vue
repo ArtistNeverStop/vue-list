@@ -5,9 +5,9 @@ export default {
     tag: String,
     list: Array,
     initialFilters: {
-      type: Object,
+      type: Array,
       default: function(){
-        return {}
+        return []
       }
     }
   },
@@ -25,62 +25,57 @@ export default {
       return  this.items.filter(item => {
         let able = true
         for(let attr in this.filters){
-          if(!attr.startsWith('!')){
-            able = this.filter(item, able, this.filters[attr], attr, 0)
-          }
+          able = this.filter(item, able, this.filters)
         }
         return able
       })
     }
   },
   methods: {
-    filter(object, able, values, attr, current){
-      if(current == values.length){
-        return able
-      }
-      switch (values[current]){
+    filter(object, able, filter){
+      if(filter[0] instanceof Array){
+        able = this.filter(object, able, filter[0])
+      } 
+      switch (filter[1]){
         case '&&':
-          return able && this.filter(object, able, values, attr, current +1)
+          return able && this.filter(object, able, filter[2])
         break;
         case '||':
-          return able || this.filter(object, able, values, attr, current +1)
+          return able || this.filter(object, able, filter[2])
         break;
         default:
-          return this.filter(object, this.filterItem(object, values[current], attr), values, attr, current +1)
+          return this.filterItem(object, filter)
         break;
       }
     },
-    filterItem(object, operation, attr){
-      if(operation instanceof Array){
-        return this.filter(object, true, operation, attr, 0)
-      }
-      switch (operation.op){
+    filterItem(object, operation){
+      switch (operation[1]){
         case '===':
-          return _.get(object, attr) === operation.val
+          return _.get(object, operation[0]) === operation[2]
         break;
         case '!==':
-          return _.get(object, attr) !== operation.val
+          return _.get(object, operation[0]) !== operation[2]
         break;
         case '==':
-          return _.get(object, attr) == operation.val
+          return _.get(object, operation[0]) == operation[2]
         break;
         case '!=':
-          return _.get(object, attr) != operation.val
+          return _.get(object, operation[0]) != operation[2]
         break;
         case '>=':
-          return _.get(object, attr) >= operation.val
+          return _.get(object, operation[0]) >= operation[2]
         break;
         case '<=':
-          return _.get(object, attr) >= operation.val
+          return _.get(object, operation[0]) >= operation[2]
         break;
         case '<':
-          return _.get(object, attr) < operation.val
+          return _.get(object, operation[0]) < operation[2]
         break;
         case '>':
-          return _.get(object, attr) > operation.val
+          return _.get(object, operation[0]) > operation[2]
         break;
         case 'includes':
-          return _.get(object, attr).includes(operation.val)
+          return _.get(object, operation[0]).includes(operation[2])
         break;
       }
     },
